@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 from yt_dlp import YoutubeDL
 import dotenv
-import whisper
+from faster_whisper import WhisperModel
 import google.generativeai as genai
 
 dotenv.load_dotenv()
@@ -249,17 +249,17 @@ async def process_video_internal(video_id: str):
 
         # Transcribe with Whisper
         print("\n🎤 Transcribing video with Whisper...")
-        model = whisper.load_model("base")
-        result = model.transcribe(video_path)
-        transcript = result['text']
-        segments = result['segments']
+        model = WhisperModel("base", device="cpu", compute_type="int8")
+        segments_generator, info = model.transcribe(video_path)
+        segments = list(segments_generator)
+        transcript = " ".join([seg.text for seg in segments])
         print(f"✅ Transcription complete ({len(segments)} segments)")
 
         # Format transcript with timestamps for Gemini
         transcript_with_times = ""
         for seg in segments:
-            start_time = f"{int(seg['start'] // 60)}:{int(seg['start'] % 60):02d}"
-            transcript_with_times += f"[{start_time}] {seg['text']}\n"
+            start_time = f"{int(seg.start // 60)}:{int(seg.start % 60):02d}"
+            transcript_with_times += f"[{start_time}] {seg.text}\n"
 
         print("\n🤖 Asking Gemini for best highlights...")
 

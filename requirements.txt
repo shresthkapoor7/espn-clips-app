@@ -5,6 +5,7 @@ yt-dlp
 supabase
 python-dotenv
 aiofiles
-openai-whisper
+faster-whisper
+ctranslate2
 google-generativeai
 ffmpeg-python
