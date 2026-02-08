@@ -305,45 +305,57 @@ Return your response as a JSON array ONLY (no other text) in this exact format:
         reel_paths = []
 
         for i, highlight in enumerate(highlights, 1):
-            start = highlight['start']
-            end = highlight['end']
-            duration = end - start
+            try:
+                start = highlight['start']
+                end = highlight['end']
+                duration = end - start
 
-            reel_filename = f"{video_id}_reel_{i}.mp4"
-            reel_path = f"/tmp/{reel_filename}"
+                reel_filename = f"{video_id}_reel_{i}.mp4"
+                reel_path = f"/tmp/{reel_filename}"
 
-            print(f"  [{i}/{len(highlights)}] Cutting {start}s to {end}s: {highlight['description']}")
+                print(f"  [{i}/{len(highlights)}] Cutting {start}s to {end}s: {highlight['description']}")
 
-            # Use ffmpeg to cut the video
-            cmd = [
-                'ffmpeg', '-i', video_path,
-                '-ss', str(start),
-                '-t', str(duration),
-                '-c:v', 'libx264',
-                '-c:a', 'aac',
-                '-y',  # Overwrite output file
-                reel_path
-            ]
+                # Use ffmpeg to cut the video
+                cmd = [
+                    'ffmpeg', '-i', video_path,
+                    '-ss', str(start),
+                    '-t', str(duration),
+                    '-c:v', 'libx264',
+                    '-c:a', 'aac',
+                    '-y',  # Overwrite output file
+                    reel_path
+                ]
 
-            subprocess.run(cmd, capture_output=True, check=True)
-            reel_paths.append((reel_filename, reel_path, highlight['description']))
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                if result.returncode != 0:
+                    print(f"  ⚠️  ffmpeg error: {result.stderr}")
+                    continue
+                    
+                reel_paths.append((reel_filename, reel_path, highlight['description']))
+                print(f"  ✅ Cut reel {i}")
+            except Exception as e:
+                print(f"  ❌ Failed to cut reel {i}: {str(e)}")
+                continue
 
         # Upload reels to Supabase
-        print("\n📤 Uploading reels to Supabase...")
+        print(f"\n📤 Uploading {len(reel_paths)} reels to Supabase...")
         uploaded_reels = []
 
         for filename, path, description in reel_paths:
-            with open(path, 'rb') as f:
-                supabase.storage.from_('videos').upload(
-                    f'reels/{filename}',
-                    f.read()
-                )
-            uploaded_reels.append({
-                "filename": filename,
-                "description": description
-            })
-            print(f"  ✅ Uploaded {filename}")
-            os.remove(path)
+            try:
+                with open(path, 'rb') as f:
+                    supabase.storage.from_('videos').upload(
+                        f'reels/{filename}',
+                        f.read()
+                    )
+                uploaded_reels.append({
+                    "filename": filename,
+                    "description": description
+                })
+                print(f"  ✅ Uploaded {filename}")
+                os.remove(path)
+            except Exception as e:
+                print(f"  ❌ Failed to upload {filename}: {str(e)}")
 
         # Cleanup
         os.remove(video_path)
