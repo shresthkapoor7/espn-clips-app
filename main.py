@@ -78,6 +78,16 @@ async def fetch_clips():
             'no_warnings': False,
             'extract_flat': 'in_playlist',
             'playlistend': 1,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['tv_embedded', 'android', 'web'],
+                    'skip': ['hls', 'dash']
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+            }
         }
 
         with YoutubeDL(ydl_opts) as ydl:
@@ -156,6 +166,16 @@ async def auto_process():
             'no_warnings': False,
             'extract_flat': 'in_playlist',
             'playlistend': 1,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['tv_embedded', 'android', 'web'],
+                    'skip': ['hls', 'dash']
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept-Language': 'en-US,en;q=0.9',
+            }
         }
 
         with YoutubeDL(ydl_opts) as ydl:
@@ -185,13 +205,13 @@ async def auto_process():
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
+                    'Accept-Language': 'en-US,en;q=0.9',
                     'Accept-Encoding': 'gzip,deflate',
                     'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
                 },
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android', 'web'],
+                        'player_client': ['tv_embedded', 'android', 'web'],
                         'skip': ['hls', 'dash', 'translated_subs']
                     }
                 }
@@ -389,13 +409,13 @@ async def upload_clips_to_supabase(clips):
                 'http_headers': {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
+                    'Accept-Language': 'en-US,en;q=0.9',
                     'Accept-Encoding': 'gzip,deflate',
                     'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
                 },
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android', 'web'],
+                        'player_client': ['tv_embedded', 'android', 'web'],
                         'skip': ['hls', 'dash', 'translated_subs']
                     }
                 }
